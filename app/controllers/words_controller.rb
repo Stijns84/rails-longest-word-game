@@ -2,6 +2,8 @@ class WordsController < ApplicationController
   def game
     @grid = Array.new(9) { [*"A".."Z"].sample }
     @start_time = Time.now
+
+    @number_of_games = session.fetch(:number_of_games, 0)
   end
 
   def score
@@ -10,6 +12,18 @@ class WordsController < ApplicationController
     @end_time = Time.now
     @attempt = params[:attempt]
     @result = run_game(@attempt, @grid, @start_time, @end_time)
+
+    update_metrics
+  end
+
+  private
+
+  def update_metrics
+    if session[:number_of_games]
+      session[:number_of_games] += 1
+    else
+      session[:number_of_games] = 1
+    end
   end
 
   def run_game(attempt, grid, start_time, end_time)
